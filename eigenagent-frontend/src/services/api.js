@@ -1,7 +1,9 @@
+const BASE_URL = "https://eigenagent.onrender.com"; // 🔗 Centralized for easy updates
+
 // Fetch welcome message from backend
 export async function fetchBackendMessage() {
   try {
-    const response = await fetch("https://eigenagent.onrender.com/"); // ✅ LIVE URL
+    const response = await fetch(`${BASE_URL}/`);
     if (!response.ok) throw new Error("Network response was not ok");
     const data = await response.json();
     return data.message;
@@ -14,7 +16,7 @@ export async function fetchBackendMessage() {
 // Send user prompt to AI agent backend
 export async function sendPromptToAgent(prompt) {
   try {
-    const response = await fetch("https://eigenagent.onrender.com/api/task", { // ✅ LIVE URL
+    const response = await fetch(`${BASE_URL}/api/task`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
