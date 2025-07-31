@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
@@ -10,7 +10,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",                # Local frontend
-        "https://eigenagent.vercel.app"        # Replace with your actual deployed frontend link
+        "https://eigenagent.vercel.app"         # Deployed frontend
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -19,6 +19,9 @@ app.add_middleware(
 
 # Request models
 class TaskRequest(BaseModel):
+    prompt: str
+
+class PlanRequest(BaseModel):
     prompt: str
 
 # Dummy AI agent task logic
@@ -58,11 +61,10 @@ def status():
         "message": "EigenAgent API is operational 🔧"
     }
 
-# Route: Plan creation
+# ✅ Route: Plan creation (fixed version)
 @app.post("/api/plan")
-async def generate_plan(request: Request):
-    data = await request.json()
-    prompt = data.get("prompt", "")
+async def generate_plan(req: PlanRequest):
+    prompt = req.prompt
     return {
         "status": "success",
         "plan": f"Generated strategy for prompt: '{prompt}'"
