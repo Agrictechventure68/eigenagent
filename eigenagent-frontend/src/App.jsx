@@ -1,86 +1,45 @@
-import { useState } from 'react'                        // ✅ FIXED: Added 'useState'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-import { fetchBackendMessage, sendPromptToAgent } from './services/api'  // ✅ import both API functions
+import { useState } from "react";
+import "./App.css";
 
 function App() {
-  const [count, setCount] = useState(0)
-  const [message, setMessage] = useState("No message yet")
-  const [prompt, setPrompt] = useState("")                  // ✅ user input state
-  const [agentResponse, setAgentResponse] = useState(null)  // ✅ response from AI agent
+  const [prompt, setPrompt] = useState("");
+  const [result, setResult] = useState("");
 
-  // ✅ handle GET request to /
-  const handleFetchMessage = async () => {
-    const result = await fetchBackendMessage()
-    setMessage(result)
-  }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setResult("Generating...");
 
-  // ✅ handle POST request to /api/task
-  const handleSendPrompt = async () => {
-    if (!prompt.trim()) {
-      setAgentResponse({ status: "error", error: "Prompt is empty." });
-      return;
-    }
-    const result = await sendPromptToAgent(prompt)
-    setAgentResponse(result)
-  }
+    const res = await fetch("https://eigenagent.onrender.com/api/plan", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ prompt }),
+    });
+
+    const data = await res.json();
+    setResult(data.plan || "Error generating plan.");
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-
-      <h1>Vite + React + FastAPI</h1>
-
-      <div className="card">
-        <button onClick={() => setCount(count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-
-      {/* ✅ Backend welcome message */}
-      <div className="card">
-        <button onClick={handleFetchMessage}>
-          Fetch Backend Message
-        </button>
-        <p><strong>Backend says:</strong> {message}</p>
-      </div>
-
-      {/* ✅ AI Agent input */}
-      <div className="card">
+    <div style={{ maxWidth: 600, margin: "auto", padding: 20 }}>
+      <h1>EigenAgent AI Planner</h1>
+      <form onSubmit={handleSubmit}>
         <input
           type="text"
-          placeholder="Enter prompt (e.g., 'send 0.5 ETH')"
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
-          style={{ padding: '6px', width: '80%' }}
+          placeholder="Enter your agent prompt..."
+          style={{ width: "100%", padding: 8 }}
         />
-        <button onClick={handleSendPrompt} style={{ marginTop: '10px' }}>
-          Send to AI Agent
-        </button>
-        {agentResponse && (
-          <div style={{ marginTop: '10px', textAlign: 'left' }}>
-            <strong>Agent Response:</strong>
-            <pre>{JSON.stringify(agentResponse, null, 2)}</pre>
-          </div>
-        )}
+        <button type="submit" style={{ marginTop: 10 }}>Generate Plan</button>
+      </form>
+      <div style={{ marginTop: 20 }}>
+        <strong>Generated Plan:</strong>
+        <pre>{result}</pre>
       </div>
-
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </div>
+  );
 }
 
-export default App
+export default App;
