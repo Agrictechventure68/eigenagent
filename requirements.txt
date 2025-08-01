@@ -4,3 +4,4 @@ pydantic
 web3
 python-dotenv
 openai
+httpx
